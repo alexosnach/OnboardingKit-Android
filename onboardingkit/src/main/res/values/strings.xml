@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The title of the default Skip button. -->
+    <string name="onboardingkit_skip">Skip</string>
+    <!-- The accessibility label of the default back button. -->
+    <string name="onboardingkit_back">Back</string>
+    <!-- The accessibility label of the default loading screen, shown while the onboarding flow loads. -->
+    <string name="onboardingkit_loading">Loading...</string>
+</resources>

@@ -1,0 +1,5 @@
+# Tells JitPack how to build the library when an app first asks for a version.
+jdk:
+  - openjdk21
+install:
+  - ./gradlew :onboardingkit:publishToMavenLocal
