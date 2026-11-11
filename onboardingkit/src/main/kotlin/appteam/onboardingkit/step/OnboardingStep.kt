@@ -60,7 +60,21 @@ import androidx.compose.runtime.Composable
  *
  * The content is responsible for its own padding and scrolling. Make long
  * content scrollable: the onboarding does not scroll it. The bar with the back
- * button, progress bar and Skip is drawn around the content, never inside it.
+ * button, progress bar and Skip is drawn above the content, never inside it:
+ * the content starts below the bar and cannot be placed under it.
+ *
+ * ## Filling the screen behind the bar
+ *
+ * The step is one screen with its bar. What fills that whole screen, such as a
+ * color, a gradient or an image, goes to [Background]: it is drawn edge to
+ * edge, behind the bar and behind the content.
+ *
+ * ```kotlin
+ * @Composable
+ * override fun Background() {
+ *     Box(Modifier.fillMaxSize().background(brandGradient))
+ * }
+ * ```
  *
  * ## Sending the step's own analytics events
  *
@@ -110,4 +124,18 @@ public interface OnboardingStep {
      */
     @Composable
     public fun Content()
+
+    /**
+     * What fills the step's whole screen, behind the bar and behind [Content].
+     *
+     * It gets the whole screen, up to every edge of the window, also under the
+     * status bar and the onboarding bar. It moves with the step in a
+     * transition. Empty when not overridden: the step then has the theme's
+     * background.
+     *
+     * Draw only the backdrop here. What the user reads or taps belongs to
+     * [Content], which is kept below the bar.
+     */
+    @Composable
+    public fun Background() {}
 }

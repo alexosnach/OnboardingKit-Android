@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -64,6 +65,11 @@ import org.junit.runner.RunWith
 
 private class WelcomeStep : OnboardingStep {
     override val id = "welcome"
+
+    @Composable
+    override fun Background() {
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(0xFF7E57C2), Color(0xFF26C6DA)))))
+    }
 
     @Composable
     override fun Content() {

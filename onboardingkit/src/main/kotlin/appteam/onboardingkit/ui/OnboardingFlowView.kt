@@ -1,16 +1,17 @@
 package appteam.onboardingkit.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -49,9 +50,11 @@ import appteam.onboardingkit.step.LocalOnboardingStepInfo
  *
  * The system back is handled by [OnboardingBackHandler].
  *
- * The step's content gets all the room below the bar, up to the window's
- * edges. The top inset is taken by the bar; the bottom and side insets are
- * the content's own to handle, for example with `Modifier.safeDrawingPadding()`.
+ * A step is one screen with its bar. The step's `Background` fills that whole
+ * screen, behind the bar, which has no background of its own. The step's
+ * `Content` gets all the room below the bar, up to the window's edges. The top
+ * inset is taken by the bar; the bottom and side insets are the content's own
+ * to handle, for example with `Modifier.safeDrawingPadding()`.
  *
  * `coordinator.steps` must not be empty: `OnboardingView` reports an empty
  * flow as completed and never shows this composable for it.
@@ -106,28 +109,48 @@ internal fun OnboardingFlowView(
         when (chromePlacement) {
             OnboardingChromePlacement.PerStep ->
                 StepTransition(state = transitionState, modifier = rootModifier.fillMaxSize()) { index ->
-                    Column {
+                    StepScreen(coordinator = coordinator, index = index) {
                         // The step's own index, not the current one: during a
                         // transition two steps are on screen, each with its own bar.
                         bar(index)
-                        StepContent(coordinator = coordinator, index = index, modifier = Modifier.weight(1f))
                     }
                 }
 
             OnboardingChromePlacement.Pinned ->
-                Column(
-                    rootModifier
-                        .fillMaxSize()
-                        // Under the bar, which has no background of its own.
-                        .background(MaterialTheme.colorScheme.background),
-                ) {
-                    bar(coordinator.currentIndex)
-                    StepTransition(state = transitionState, modifier = Modifier.weight(1f)) { index ->
-                        StepContent(coordinator = coordinator, index = index)
+                Box(rootModifier.fillMaxSize()) {
+                    StepTransition(state = transitionState, modifier = Modifier.fillMaxSize()) { index ->
+                        // The bar does not slide: each step only keeps its room free.
+                        StepScreen(coordinator = coordinator, index = index) { BarSpace() }
                     }
+                    bar(coordinator.currentIndex)
                 }
         }
     }
+}
+
+/**
+ * The whole screen of the step at [index]: its background from edge to edge,
+ * then [top] (the bar, or the room for it) and the step's content below.
+ */
+@Composable
+private fun StepScreen(coordinator: OnboardingCoordinator, index: Int, top: @Composable () -> Unit) {
+    Box(Modifier.fillMaxSize()) {
+        coordinator.steps[index].Background()
+        Column {
+            top()
+            StepContent(coordinator = coordinator, index = index, modifier = Modifier.weight(1f))
+        }
+    }
+}
+
+/** As high as [OnboardingTopBar], and empty: the room of a bar that is drawn elsewhere. */
+@Composable
+private fun BarSpace() {
+    Spacer(
+        Modifier
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
+            .height(OnboardingTopBarDefaults.height),
+    )
 }
 
 /**

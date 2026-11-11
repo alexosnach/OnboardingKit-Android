@@ -10,6 +10,7 @@ with the same concepts, names and behavior.
 - **Any screen is a step.** A step is a small class with a composable `Content()`.
 - **System back.** The back button, the back gesture and the predictive back animation work out of the box.
 - **Any device.** The flow keeps its place through rotation, folding and window resizing; the bar keeps clear of the status bar and display cutouts; right-to-left layouts are mirrored.
+- **One screen with its bar.** A step's background fills the whole screen behind the bar; its content stays below the bar.
 - **Progress bar.** A line or a segment per step, or your own style. Colors are configurable.
 - **Skip.** On the end side, shown only on the steps you allow.
 - **Per-step chrome.** Every step decides whether it shows the back button, the progress bar and Skip.
@@ -42,7 +43,7 @@ Add the dependency to your app module:
 
 ```kotlin
 dependencies {
-    implementation("com.github.alexosnach:OnboardingKit-Android:0.1.0")
+    implementation("com.github.alexosnach:OnboardingKit-Android:0.2.0")
 }
 ```
 
@@ -273,17 +274,37 @@ second `Started`.
 After the app's process was killed in the background, the onboarding starts
 again from the first step.
 
-## Window insets
+## Step background and window insets
 
-The bar keeps clear of the status bar and of display cutouts at the top and on
-the sides. A step's content gets all the room below the bar, up to the
-window's edges. The bottom and side insets are the content's own to handle:
+A step is one screen together with its bar, as on iOS. The bar has no
+background of its own, so what the step draws behind it shows through.
+
+- `Background()` fills the whole screen, from edge to edge: behind the status
+  bar, behind the onboarding bar and behind the content. It moves with the
+  step in a transition. A step that does not override it has the theme's background.
+- `Content()` starts below the bar and cannot be placed under it, like the
+  content of a screen under a navigation bar. It reaches the window's bottom
+  and side edges, and those insets are the content's own to handle.
 
 ```kotlin
-Column(Modifier.fillMaxSize().safeDrawingPadding()) { /* ... */ }
+class WelcomeStep : OnboardingStep {
+    override val id = "welcome"
+
+    @Composable
+    override fun Background() {
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(0xFF7E57C2), Color(0xFF26C6DA)))))
+    }
+
+    @Composable
+    override fun Content() {
+        Column(Modifier.fillMaxSize().safeDrawingPadding()) { /* ... */ }
+    }
+}
 ```
 
-The top inset is already taken by the bar, so `safeDrawingPadding()` adds nothing at the top.
+The bar keeps clear of the status bar and of display cutouts at the top and on
+the sides. The top inset is already taken by the bar, so `safeDrawingPadding()`
+adds nothing at the top of the content.
 
 ## Analytics
 
@@ -381,7 +402,7 @@ To translate them, declare strings with the same names in your app's
 | `flowID` | `flowId` |
 | Native back button and swipe back | System back button and gesture |
 | `skipButtonPrefersSideBar()` for iPhone Duo | Not available: Android has no system side bar |
-| A step's content extends under the navigation bar | A step's content starts below the bar |
+| A background that ignores the safe area shows behind the navigation bar | The step's `Background()` shows behind the bar |
 | Built-in texts cannot be translated without a custom style | Built-in texts are string resources the app can override |
 
 ## License
