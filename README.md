@@ -42,7 +42,7 @@ Add the dependency to your app module:
 
 ```kotlin
 dependencies {
-    implementation("com.github.alexosnach.OnboardingKit-Android:onboardingkit:0.1.0")
+    implementation("com.github.alexosnach:OnboardingKit-Android:0.1.0")
 }
 ```
 
