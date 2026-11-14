@@ -47,6 +47,63 @@ dependencies {
 }
 ```
 
+### Groovy
+
+If your build files are in Groovy, the same two steps look like this.
+
+`settings.gradle`:
+
+```groovy
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+The app module's `build.gradle`:
+
+```groovy
+dependencies {
+    implementation 'com.github.alexosnach:OnboardingKit-Android:0.2.0'
+}
+```
+
+### Version catalog
+
+With a version catalog, declare the library in `gradle/libs.versions.toml`:
+
+```toml
+[versions]
+onboardingkit = "0.2.0"
+
+[libraries]
+onboardingkit = { module = "com.github.alexosnach:OnboardingKit-Android", version.ref = "onboardingkit" }
+```
+
+and use it in the app module:
+
+```kotlin
+dependencies {
+    implementation(libs.onboardingkit)
+}
+```
+
+The JitPack repository in `settings.gradle.kts` is needed in this case too.
+
+### Imports
+
+The library's classes are in the `appteam.onboardingkit` packages:
+
+```kotlin
+import appteam.onboardingkit.analytics.*
+import appteam.onboardingkit.flow.*
+import appteam.onboardingkit.step.*
+import appteam.onboardingkit.ui.*
+```
+
 ## Quick start
 
 ### 1. Write the steps
